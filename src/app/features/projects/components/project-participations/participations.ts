@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -10,7 +9,6 @@ import {
   signal,
   viewChild
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -31,7 +29,6 @@ import { ProjectsStore } from '@features/projects/store/projects.store';
 import { ParticipationDetail } from './participation-detail/participation-detail';
 import { getParticipationKey } from '@features/projects/helpers';
 import { FilterParticipationsDto } from '@features/projects/dto/phases/filter-participations.dto';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-participations',
@@ -51,7 +48,6 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   ]
 })
 export class Participations {
-  #destroyRef = inject(DestroyRef);
   project = input.required<IProject | null>();
   phasesStore = inject(PhasesStore);
   projectsStore = inject(ProjectsStore);
@@ -109,12 +105,6 @@ export class Participations {
   });
 
   constructor() {
-    toObservable(this.searchQuery)
-      .pipe(debounceTime(1000), distinctUntilChanged(), takeUntilDestroyed(this.#destroyRef))
-      .subscribe((query) => {
-        this.searchQuery.set(query);
-      });
-
     effect(() => {
       const proj = this.project();
       if (proj?.id) {
