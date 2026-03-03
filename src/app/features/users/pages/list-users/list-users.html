@@ -11,7 +11,6 @@
     class="sr-only"
     (change)="onCsvFileSelected($event)"
     [disabled]="isImportingCsv" />
-
   <div class="flex flex-col md:flex-row gap-4 md:justify-between md:items-center mb-4">
     <app-ui-badge [label]="userCount.toString() + ' Utilisateurs'" />
     <div class="flex flex-wrap items-center gap-2">
@@ -22,7 +21,9 @@
         [loading]="isImportingCsv"
         [disabled]="isImportingCsv"
         (clicked)="triggerCsvFileSelect()">
-        <i-lucide [name]="icons.Upload" class="size-4" />
+        @if (!isImportingCsv) {
+          <i-lucide [name]="icons.Upload" class="size-4" />
+        }
         @if (selectedCsvFile()) {
           Changer le fichier
         } @else {
@@ -37,13 +38,17 @@
           Annuler
         </app-ui-button>
       }
+      @let isDownloading = store.isDownloading();
       <app-ui-button
         variant="primary"
         [outlined]="true"
         size="small"
-        [disabled]="userCount === 0"
+        [loading]="isDownloading"
+        [disabled]="userCount === 0 || isDownloading"
         (clicked)="onDownloadUsers()">
-        <i-lucide [name]="icons.Download" class="size-4" />
+        @if (isDownloading) {
+          <i-lucide [name]="icons.Download" class="size-4" />
+        }
         Télécharger CSV
       </app-ui-button>
       <a [routerLink]="'/users/add'" class="ui-button ui-button-small ui-button-primary"> Nouvel utilisateur </a>
@@ -70,7 +75,6 @@
         autocomplete="off" />
     </div>
   </form>
-
   <div class="mt-6">
     @if (isLoading && userCount === 0) {
       <app-ui-table-skeleton [rows]="10" [columns]="4" />

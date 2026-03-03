@@ -13,6 +13,7 @@ import { UserDto } from '../dto/users/user.dto';
 interface IUsersStore {
   isLoading: boolean;
   isUpdating: boolean;
+  isDownloading: boolean;
   isImportingCsv: boolean;
   users: [IUser[], number];
   user: IUser | null;
@@ -24,6 +25,7 @@ export const UsersStore = signalStore(
     isLoading: false,
     isUpdating: false,
     isImportingCsv: false,
+    isDownloading: false,
     users: [[], 0],
     user: null,
     staff: []
@@ -143,7 +145,7 @@ export const UsersStore = signalStore(
     ),
     download: rxMethod<FilterUsersDto>(
       pipe(
-        tap(() => patchState(store, { isLoading: true })),
+        tap(() => patchState(store, { isDownloading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
           return _http.get('users/export/users.csv', { params, responseType: 'blob' }).pipe(
@@ -154,10 +156,10 @@ export const UsersStore = signalStore(
               a.download = 'users.csv';
               a.click();
               window.URL.revokeObjectURL(url);
-              patchState(store, { isLoading: false });
+              patchState(store, { isDownloading: false });
             }),
             catchError(() => {
-              patchState(store, { isLoading: false });
+              patchState(store, { isDownloading: false });
               return of(null);
             })
           );
