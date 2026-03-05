@@ -1,4 +1,4 @@
-import { Component, input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, forwardRef, ChangeDetectionStrategy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -16,7 +16,7 @@ export class UiCheckbox implements ControlValueAccessor {
   id = input<string>('');
   name = input<string>('');
   invalid = input<boolean>(false);
-  value = false;
+  @Input() value!: boolean;
 
   onChange!: (value: boolean) => void;
   onTouched!: () => void;

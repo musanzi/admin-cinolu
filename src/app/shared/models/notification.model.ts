@@ -10,11 +10,11 @@ export interface INotificationAttachment extends IBase {
 export interface INotification extends IBase {
   title: string;
   body: string;
-  phase?: IPhase | null;
-  phase_id?: string | null;
-  sender?: IUser | null;
-  notify_mentors?: boolean | null;
-  notify_staff?: boolean | null;
-  attachments?: INotificationAttachment[];
-  status?: 'draft' | 'sent';
+  phase: IPhase | null;
+  phase_id: string | null;
+  sender: IUser;
+  notify_mentors: boolean;
+  notify_staff: boolean;
+  attachments: INotificationAttachment[];
+  status: 'draft' | 'sent';
 }

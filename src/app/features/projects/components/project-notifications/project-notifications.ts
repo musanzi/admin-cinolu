@@ -8,15 +8,13 @@ import { NotificationsStore } from '../../store/notifications.store';
 import { PhasesStore } from '@features/projects/store/phases.store';
 import { AuthStore } from '@core/auth/auth.store';
 import { NotificationCompose } from './notification-compose/notification-compose';
-import { NotificationDetail } from './notification-detail/notification-detail';
-import { NotificationsHistoryList } from './notifications-history/notifications-history-list';
+import { NotificationsHistoryList } from './notifications-list/notifications-list';
 import { NotifyParticipantsDto } from '../../dto/notifications/notify-participants.dto';
 import {
   NotificationStatus,
   NotificationsState,
   NotificationState,
-  SubmitNotification,
-  NotificationDetailState
+  SubmitNotification
 } from '@features/projects/types';
 
 @Component({
@@ -31,7 +29,6 @@ import {
     UiConfirmDialog,
     LucideAngularModule,
     NotificationsHistoryList,
-    NotificationDetail,
     NotificationCompose
   ]
 })
@@ -68,18 +65,6 @@ export class ProjectNotifications {
     currentPage: this.currentPage(),
     itemsPerPage: this.itemsPerPage
   }));
-
-  detailState = computed<NotificationDetailState | null>(() => {
-    const notification = this.activeNotification();
-    if (!notification) return null;
-    return {
-      notification,
-      isSaving: this.notificationsStore.isSaving(),
-      fallbackSenderName: this.authStore.user()?.name || 'Utilisateur',
-      fallbackSenderEmail: this.authStore.user()?.email || ''
-    };
-  });
-
   composeState = computed<NotificationState>(() => ({
     activeNotification: this.activeNotification(),
     phaseOptions: this.phaseOptions(),
@@ -120,8 +105,7 @@ export class ProjectNotifications {
 
   onSelectNotification(notification: INotification): void {
     this.notificationsStore.setActiveNotification(notification);
-    this.notificationsStore.clearError();
-    this.isComposing.set(false);
+    this.#startCompose();
   }
 
   onComposeNew(): void {

@@ -27,10 +27,3 @@ export interface NotificationsState {
   currentPage: number;
   itemsPerPage: number;
 }
-
-export interface NotificationDetailState {
-  notification: INotification;
-  isSaving: boolean;
-  fallbackSenderName: string;
-  fallbackSenderEmail: string;
-}

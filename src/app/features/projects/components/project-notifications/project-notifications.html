@@ -23,23 +23,13 @@
       <span class="hidden sm:inline">Nouveau</span>
     </app-ui-button>
   </div>
-
   <div class="grid min-h-0 grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,320px)_1fr] lg:items-start">
-    <app-notifications-history-list
+    <app-notifications-list
       [state]="historyState()"
       (selectNotification)="onSelectNotification($event)"
       (pageChange)="onPageChange($event)" />
-
     <div
       class="flex min-h-[400px] lg:min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white">
-      @if (!isComposing() && detailState(); as detailState) {
-        <app-notification-detail
-          [state]="detailState"
-          (resendNotification)="resendNotification($event)"
-          (editNotification)="onEditNotification()"
-          (deleteNotification)="deleteNotification($event)" />
-      }
-
       @if (isComposing()) {
         <app-notification-compose
           [state]="composeState()"

@@ -41,7 +41,8 @@ export class NotificationCompose {
     effect(() => {
       const notification = this.state().activeNotification;
       if (notification) {
-        this.phaseId.set(notification.phase?.id || '');
+        this.phaseId.set(notification.phase?.id || null);
+        this.notifyMentors.set(notification.notify_mentors);
         this.form.patchValue({
           title: notification.title,
           body: notification.body

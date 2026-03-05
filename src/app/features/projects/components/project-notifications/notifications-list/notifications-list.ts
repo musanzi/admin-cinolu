@@ -6,8 +6,8 @@ import { UiPagination } from '@shared/ui';
 import { Inbox, LucideAngularModule } from 'lucide-angular';
 
 @Component({
-  selector: 'app-notifications-history-list',
-  templateUrl: './notifications-history-list.html',
+  selector: 'app-notifications-list',
+  templateUrl: './notifications-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, UiPagination, LucideAngularModule]
 })

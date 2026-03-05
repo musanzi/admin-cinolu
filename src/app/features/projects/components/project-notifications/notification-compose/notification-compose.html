@@ -5,7 +5,7 @@
 </div>
 <div class="min-h-0 flex-1 overflow-y-auto">
   <div class="mx-auto w-full max-w-2xl space-y-5 px-4 py-5 sm:px-6">
-    @if (!state().activeNotification) {
+    @if (!state().activeNotification && !phaseId()) {
       <div class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
         <app-ui-checkbox
           [id]="'notify_staff'"
@@ -22,9 +22,10 @@
           [options]="state().phaseOptions"
           placeholder="Tous les participants" />
       </div>
-      @if (phaseId() && !state().activeNotification) {
+      @if (phaseId()) {
         <div class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-3">
           <app-ui-checkbox
+            [value]="notifyMentors()"
             [id]="'notify_mentors'"
             [(ngModel)]="notifyMentors"
             label="Notifier uniquement les mentors de la phase" />
