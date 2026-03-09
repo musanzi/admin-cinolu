@@ -1,0 +1,46 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col gap-4 lg:flex-row my-6 lg:items-center lg:justify-between">
+    <div class="flex flex-1 flex-col gap-3 lg:max-w-xl lg:flex-row lg:items-center">
+      <div class="w-full sm:w-56">
+        <app-ui-select
+          [id]="'notification-phase-filter'"
+          [options]="phaseFilterOptions()"
+          [modelValue]="filterPhaseId()"
+          placeholder="Toutes les phases"
+          (valueChange)="onFilterPhaseChange($event)" />
+      </div>
+      <div class="w-full sm:w-48">
+        <app-ui-select
+          [id]="'notification-status-filter'"
+          [options]="statusFilterOptions"
+          [modelValue]="filterStatus()"
+          placeholder="Tous les statuts"
+          (valueChange)="onFilterStatusChange($event)" />
+      </div>
+    </div>
+    <div class="w-full sm:w-auto">
+      <app-ui-button variant="primary" (clicked)="onComposeNew()">
+        <i-lucide [name]="icons.Plus" class="size-4" />
+        Nouvelle notification
+      </app-ui-button>
+    </div>
+  </div>
+
+  <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+    <app-notifications-list
+      [state]="historyState()"
+      [isLoading]="notificationsStore.isLoading()"
+      (selectNotification)="onSelectNotification($event)"
+      (pageChange)="onPageChange($event)" />
+
+    <div class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+      <app-notification-compose
+        [state]="composeState()"
+        (saveDraft)="onSaveDraft($event)"
+        (sendNotification)="onSend($event)"
+        (deleteNotification)="onDelete($event)" />
+    </div>
+  </div>
+
+  <app-ui-confirm-dialog />
+</div>

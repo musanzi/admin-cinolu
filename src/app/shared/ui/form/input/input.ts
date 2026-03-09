@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, inject, input } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -18,6 +19,8 @@ export class UiInput implements ControlValueAccessor {
   invalid = input<boolean>(false);
   required = input<boolean>(false);
   value = '';
+  isControlDisabled = signal(false);
+  isDisabled = computed(() => this.disabled() || this.isControlDisabled());
 
   onChange!: (value: string) => void;
   onTouched!: () => void;
@@ -36,11 +39,12 @@ export class UiInput implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    void isDisabled;
+    this.isControlDisabled.set(isDisabled);
     this.#cdr.markForCheck();
   }
 
   onInput(event: Event): void {
+    if (this.isDisabled()) return;
     const target = event.target as HTMLInputElement;
     this.value = target.value;
     this.onChange(this.value);
@@ -49,7 +53,7 @@ export class UiInput implements ControlValueAccessor {
   inputClasses(): string {
     const baseClasses = 'ui-input';
     const invalidClass = this.invalid() ? 'ui-input-invalid' : '';
-    const disabledClass = this.disabled() ? 'ui-input-disabled' : '';
+    const disabledClass = this.isDisabled() ? 'ui-input-disabled' : '';
     return [baseClasses, invalidClass, disabledClass].filter(Boolean).join(' ');
   }
 }

@@ -1,4 +1,4 @@
-<div class="ui-text-editor">
+<div [class]="wrapperClasses()">
   <div [class]="toolbarClasses()">
     <div class="ui-text-editor-toolbar-group">
       <button
@@ -6,7 +6,7 @@
         [class]="buttonClasses()"
         (click)="formatBold()"
         title="Bold (Ctrl+B)"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.Bold" [size]="16" />
       </button>
       <button
@@ -14,7 +14,7 @@
         [class]="buttonClasses()"
         (click)="formatItalic()"
         title="Italic (Ctrl+I)"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.Italic" [size]="16" />
       </button>
       <button
@@ -22,7 +22,7 @@
         [class]="buttonClasses()"
         (click)="formatUnderline()"
         title="Underline (Ctrl+U)"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.Underline" [size]="16" />
       </button>
     </div>
@@ -35,7 +35,7 @@
         [class]="buttonClasses()"
         (click)="insertBulletList()"
         title="Bullet List"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.List" [size]="16" />
       </button>
       <button
@@ -43,7 +43,7 @@
         [class]="buttonClasses()"
         (click)="insertOrderedList()"
         title="Numbered List"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.List" [size]="16" />
       </button>
     </div>
@@ -51,7 +51,12 @@
     <div class="ui-text-editor-toolbar-divider"></div>
 
     <div class="ui-text-editor-toolbar-group">
-      <button type="button" [class]="buttonClasses()" (click)="alignLeft()" title="Align Left" [disabled]="disabled()">
+      <button
+        type="button"
+        [class]="buttonClasses()"
+        (click)="alignLeft()"
+        title="Align Left"
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.TextAlignStart" [size]="16" />
       </button>
       <button
@@ -59,7 +64,7 @@
         [class]="buttonClasses()"
         (click)="alignCenter()"
         title="Align Center"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.TextAlignCenter" [size]="16" />
       </button>
       <button
@@ -67,7 +72,7 @@
         [class]="buttonClasses()"
         (click)="alignRight()"
         title="Align Right"
-        [disabled]="disabled()">
+        [disabled]="isDisabled()">
         <i-lucide [img]="icons.TextAlignEnd" [size]="16" />
       </button>
     </div>
@@ -76,7 +81,7 @@
   <div
     #editor
     [class]="editorClasses()"
-    [attr.contenteditable]="!disabled()"
+    [attr.contenteditable]="!isDisabled()"
     [id]="id()"
     [style.min-height]="minHeight()"
     (input)="onInput()"

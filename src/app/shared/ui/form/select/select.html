@@ -1,4 +1,4 @@
-<div class="ui-select-wrapper" [class.ui-select-disabled]="disabled()">
+<div class="ui-select-wrapper" [class.ui-select-disabled]="isDisabled()">
   @if (label()) {
     <p class="block text-sm font-semibold text-gray-700 mb-1">
       {{ label() }}
@@ -15,9 +15,10 @@
       (keyup.enter)="toggleDropdown()"
       (keyup.space)="toggleDropdown()"
       [id]="id()"
-      [tabindex]="disabled() ? -1 : 0"
+      [tabindex]="isDisabled() ? -1 : 0"
       role="combobox"
       [attr.aria-expanded]="isOpen()"
+      [attr.aria-disabled]="isDisabled()"
       [attr.aria-haspopup]="'listbox'"
       [attr.aria-controls]="id() + '-listbox'">
       @if (!displayText()) {
@@ -40,6 +41,7 @@
               class="ui-select-filter-input"
               [value]="filterTerm()"
               [placeholder]="filterPlaceholder()"
+              [disabled]="isDisabled()"
               autocomplete="off"
               (click)="$event.stopPropagation()"
               (input)="onFilterInput($event)"
@@ -53,7 +55,7 @@
             [class.ui-select-option-disabled]="option.disabled"
             (click)="selectOption(option)"
             (keyup.space)="selectOption(option)"
-            [tabindex]="option.disabled ? -1 : 0"
+            [tabindex]="option.disabled || isDisabled() ? -1 : 0"
             role="option"
             [attr.aria-selected]="isSelected(option.value)">
             <span class="ui-select-option-label">{{ option.label }}</span>
@@ -70,11 +72,15 @@
               class="ui-select-create-input"
               [value]="createValue()"
               [placeholder]="createPlaceholder()"
-              [disabled]="createDisabled()"
+              [disabled]="createDisabled() || isDisabled()"
               autocomplete="off"
               (input)="onCreateInput($event)"
               (keydown)="onCreateKeydown($event)" />
-            <button type="button" class="ui-select-create-button" [disabled]="!canCreate()" (click)="onCreateOption()">
+            <button
+              type="button"
+              class="ui-select-create-button"
+              [disabled]="!canCreate() || isDisabled()"
+              (click)="onCreateOption()">
               <i-lucide [img]="icons.Plus" class="size-4" />
               {{ createButtonLabel() }}
             </button>

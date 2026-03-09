@@ -1,4 +1,15 @@
-import { Component, input, forwardRef, signal, effect, ViewChild, ElementRef, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  forwardRef,
+  signal,
+  effect,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  computed
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -28,6 +39,8 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
   minHeight = input<string>('300px');
   value = signal('');
   isFocused = signal(false);
+  isControlDisabled = signal(false);
+  isDisabled = computed(() => this.disabled() || this.isControlDisabled());
   icons = { Bold, Italic, Underline, List, TextAlignCenter, TextAlignStart, TextAlignEnd };
 
   onChange!: (value: string) => void;
@@ -35,8 +48,8 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
 
   constructor() {
     effect(() => {
-      if (this.disabled() && this.editorElement) {
-        this.editorElement.nativeElement.contentEditable = 'false';
+      if (this.editorElement) {
+        this.editorElement.nativeElement.contentEditable = (!this.isDisabled()).toString();
       }
     });
 
@@ -70,13 +83,11 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    if (this.editorElement) {
-      this.editorElement.nativeElement.contentEditable = (!isDisabled).toString();
-    }
+    this.isControlDisabled.set(isDisabled);
   }
 
   onInput(): void {
-    if (this.editorElement) {
+    if (this.editorElement && !this.isDisabled()) {
       const newValue = this.editorElement.nativeElement.innerHTML;
       this.value.set(newValue);
       this.onChange(newValue);
@@ -84,6 +95,7 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
   }
 
   onFocus(): void {
+    if (this.isDisabled()) return;
     this.isFocused.set(true);
   }
 
@@ -93,6 +105,7 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
   }
 
   execCommand(command: string, value: string | undefined = undefined): void {
+    if (this.isDisabled()) return;
     document.execCommand(command, false, value);
     this.editorElement?.nativeElement.focus();
     this.onInput();
@@ -148,21 +161,31 @@ export class UiTextEditor implements ControlValueAccessor, AfterViewInit {
     this.execCommand('formatBlock', 'pre');
   }
 
+  wrapperClasses(): string {
+    const baseClasses = 'ui-text-editor';
+    const disabledClass = this.isDisabled() ? 'ui-text-editor-shell-disabled' : '';
+    const invalidClass = this.invalid() ? 'ui-text-editor-shell-invalid' : '';
+    return [baseClasses, disabledClass, invalidClass].filter(Boolean).join(' ');
+  }
+
   editorClasses(): string {
     const baseClasses = 'ui-text-editor-content';
     const focusedClass = this.isFocused() ? 'ui-text-editor-focused' : '';
     const invalidClass = this.invalid() ? 'ui-text-editor-invalid' : '';
-    const disabledClass = this.disabled() ? 'ui-text-editor-disabled' : '';
+    const disabledClass = this.isDisabled() ? 'ui-text-editor-disabled' : '';
     return [baseClasses, focusedClass, invalidClass, disabledClass].filter(Boolean).join(' ');
   }
 
   toolbarClasses(): string {
-    return 'ui-text-editor-toolbar';
+    const baseClasses = 'ui-text-editor-toolbar';
+    const disabledClass = this.isDisabled() ? 'ui-text-editor-toolbar-disabled' : '';
+    return [baseClasses, disabledClass].filter(Boolean).join(' ');
   }
 
   buttonClasses(isActive = false): string {
     const baseClasses = 'ui-text-editor-button';
     const activeClass = isActive ? 'ui-text-editor-button-active' : '';
-    return [baseClasses, activeClass].filter(Boolean).join(' ');
+    const disabledClass = this.isDisabled() ? 'ui-text-editor-button-disabled' : '';
+    return [baseClasses, activeClass, disabledClass].filter(Boolean).join(' ');
   }
 }

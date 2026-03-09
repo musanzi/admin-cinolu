@@ -15,8 +15,10 @@ export interface SubmitNotification {
 export interface NotificationState {
   activeNotification: INotification | null;
   phaseOptions: SelectOption[];
+  isLoading: boolean;
   isSaving: boolean;
   error: string | null;
+  isEditable: boolean;
   project: IProject;
 }
 

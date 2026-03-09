@@ -54,12 +54,18 @@ export class UiSelect implements ControlValueAccessor {
   isOpen = signal(false);
   createValue = signal('');
   filterTerm = signal('');
+  isControlDisabled = signal(false);
   #elementRef = inject(ElementRef);
   constructor() {
     effect(() => {
       const modelValue = this.modelValue();
       if (modelValue !== undefined) {
         this.value.set(modelValue ?? '');
+      }
+    });
+    effect(() => {
+      if (this.isDisabled()) {
+        this.isOpen.set(false);
       }
     });
   }
@@ -101,6 +107,7 @@ export class UiSelect implements ControlValueAccessor {
     return selected ? selected.label : '';
   });
   canCreate = computed(() => this.createValue().trim().length > 0 && !this.createDisabled());
+  isDisabled = computed(() => this.disabled() || this.isControlDisabled());
 
   #onChangeCallback: (value: unknown) => void = () => undefined;
   onTouched: () => void = () => undefined;
@@ -130,12 +137,12 @@ export class UiSelect implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState(_isDisabled: boolean): void {
-    void _isDisabled;
+  setDisabledState(isDisabled: boolean): void {
+    this.isControlDisabled.set(isDisabled);
   }
 
   toggleDropdown(): void {
-    if (!this.disabled()) {
+    if (!this.isDisabled()) {
       this.isOpen.set(!this.isOpen());
       if (this.isOpen()) {
         this.onTouched();
@@ -162,7 +169,7 @@ export class UiSelect implements ControlValueAccessor {
   selectClasses(): string {
     const baseClasses = 'ui-select';
     const invalidClass = this.invalid() ? 'ui-select-invalid' : '';
-    const disabledClass = this.disabled() ? 'ui-select-disabled' : '';
+    const disabledClass = this.isDisabled() ? 'ui-select-disabled' : '';
     return [baseClasses, invalidClass, disabledClass].filter(Boolean).join(' ');
   }
 
@@ -171,11 +178,13 @@ export class UiSelect implements ControlValueAccessor {
   }
 
   onCreateInput(event: Event): void {
+    if (this.isDisabled()) return;
     const target = event.target as HTMLInputElement;
     this.createValue.set(target.value);
   }
 
   onFilterInput(event: Event): void {
+    if (this.isDisabled()) return;
     const target = event.target as HTMLInputElement;
     const nextTerm = target.value ?? '';
     this.filterTerm.set(nextTerm);
@@ -194,7 +203,7 @@ export class UiSelect implements ControlValueAccessor {
   }
 
   onCreateOption(): void {
-    if (!this.canCreate()) return;
+    if (!this.canCreate() || this.isDisabled()) return;
     this.createOption.emit(this.createValue().trim());
     this.createValue.set('');
   }
