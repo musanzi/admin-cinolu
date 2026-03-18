@@ -66,9 +66,7 @@ export const VenturesStore = signalStore(
             map(({ data }) => {
               const [list, count] = store.ventures();
               const updated = list.map((v) => (v.slug === data.slug ? data : v));
-              _toast.showSuccess(
-                data.is_published ? 'Venture publiée avec succès' : 'Venture dépubliée avec succès'
-              );
+              _toast.showSuccess(data.is_published ? 'Venture publiée avec succès' : 'Venture dépubliée avec succès');
               patchState(store, { isLoading: false, ventures: [updated, count], venture: data });
             }),
             catchError(() => {

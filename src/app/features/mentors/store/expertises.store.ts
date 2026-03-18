@@ -66,7 +66,10 @@ export const ExpertisesStore = signalStore(
           _http.post<{ data: IExpertise }>('expertises', payload).pipe(
             map(({ data }) => {
               const [list, count] = store.expertises();
-              const nextAllExpertises = [data, ...store.allExpertises().filter((expertise) => expertise.id !== data.id)];
+              const nextAllExpertises = [
+                data,
+                ...store.allExpertises().filter((expertise) => expertise.id !== data.id)
+              ];
               patchState(store, {
                 isLoading: false,
                 expertises: [[data, ...list], count + 1],
@@ -93,7 +96,9 @@ export const ExpertisesStore = signalStore(
               _toast.showSuccess('Expertise mise à jour');
               const [list, count] = store.expertises();
               const updated = list.map((e) => (e.id === data.id ? data : e));
-              const allExpertises = store.allExpertises().map((expertise) => (expertise.id === data.id ? data : expertise));
+              const allExpertises = store
+                .allExpertises()
+                .map((expertise) => (expertise.id === data.id ? data : expertise));
               patchState(store, { isLoading: false, expertises: [updated, count], allExpertises });
               onSuccess();
             }),

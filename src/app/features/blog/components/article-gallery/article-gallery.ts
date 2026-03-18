@@ -18,7 +18,7 @@ export class ArticleGalleryComponent {
   coverUploaded = output<void>();
   galleryUploaded = output<void>();
   deleteImage = output<string>();
-  icons = { Trash2, Image };
+  icons = { Trash2, Image: Image };
 
   onCoverUploaded(): void {
     this.coverUploaded.emit();

@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from '@shared/services/toast/toastr.service';
-import { User } from '@shared/models';
+import { IUser } from '@shared/models';
 import { AuthStore } from '@core/auth/auth.store';
 import { SignInDto } from '../dto/sign-in.dto';
 import { Router } from '@angular/router';
@@ -34,7 +34,7 @@ export const SignInStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap(({ payload, redirectPath, onSuccess }) => {
-          return http.post<{ data: User }>('auth/signin', payload).pipe(
+          return http.post<{ data: IUser }>('auth/signin', payload).pipe(
             tap(({ data }) => {
               patchState(store, { isLoading: false });
               authStore.setUser(data);

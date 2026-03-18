@@ -1,14 +1,6 @@
 import { Component, computed, ElementRef, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import {
-  LucideAngularModule,
-  Menu,
-  ChevronDown,
-  LogOut,
-  House,
-  ExternalLink,
-  Calendar
-} from 'lucide-angular';
+import { LucideAngularModule, Menu, ChevronDown, LogOut, House, ExternalLink, Calendar } from 'lucide-angular';
 import { LINK_GROUPS } from '../../data/links.data';
 import { IUser } from '@shared/models';
 import { filter, fromEvent } from 'rxjs';
@@ -44,9 +36,7 @@ export class MobileMenu {
     const url = this.currentUrl();
     return (
       this.allLinks().find(
-        (link) =>
-          link.path === url ||
-          link.children?.some((child) => child.path && url.startsWith(child.path))
+        (link) => link.path === url || link.children?.some((child) => child.path && url.startsWith(child.path))
       )?.name ?? null
     );
   });

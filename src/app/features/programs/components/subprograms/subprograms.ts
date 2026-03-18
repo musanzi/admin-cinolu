@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SubprogramsStore } from '../../store/subprograms.store';
 import { ISubprogram } from '@shared/models';
 import { ApiImgPipe } from '@shared/pipes/api-img.pipe';
-import { IProgram } from '@shared/models';
+import { Program } from '@shared/models';
 import { ConfirmationService } from '@shared/services/confirmation';
 import { UiTableSkeleton } from '@shared/ui/table-skeleton/table-skeleton';
 import {
@@ -46,7 +46,7 @@ export class ListSubprograms implements OnInit {
   #fb = inject(FormBuilder);
   #confirmationService = inject(ConfirmationService);
   readonly store = inject(SubprogramsStore);
-  programs = input<IProgram[]>([]);
+  programs = input<Program[]>([]);
   programId = input.required<string>();
   form = this.#fb.nonNullable.group({
     programId: ['', Validators.required],

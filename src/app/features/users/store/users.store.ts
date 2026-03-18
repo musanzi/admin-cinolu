@@ -5,7 +5,7 @@ import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { FilterUsersDto } from '../dto/users/filter-users.dto';
 import { buildQueryParams } from '@shared/helpers';
-import { User } from '@shared/models';
+import { IUser } from '@shared/models';
 import { ToastrService } from '@shared/services/toast/toastr.service';
 import { Router } from '@angular/router';
 import { UserDto } from '../dto/users/user.dto';
@@ -15,9 +15,9 @@ interface IUsersStore {
   isUpdating: boolean;
   isDownloading: boolean;
   isImportingCsv: boolean;
-  users: [User[], number];
-  user: User | null;
-  staff: User[];
+  users: [IUser[], number];
+  user: IUser | null;
+  staff: IUser[];
 }
 
 export const UsersStore = signalStore(
@@ -41,7 +41,7 @@ export const UsersStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
-          return http.get<{ data: [User[], number] }>('users', { params }).pipe(
+          return http.get<{ data: [IUser[], number] }>('users', { params }).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, users: data });
             }),
@@ -57,7 +57,7 @@ export const UsersStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true } as Partial<IUsersStore>)),
         switchMap(() =>
-          http.get<{ data: User[] }>('users/staff').pipe(
+          http.get<{ data: IUser[] }>('users/staff').pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, staff: data } as Partial<IUsersStore>);
             }),
@@ -73,7 +73,7 @@ export const UsersStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((email) =>
-          http.get<{ data: User }>(`users/${email}`).pipe(
+          http.get<{ data: IUser }>(`users/${email}`).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, user: data });
             }),
@@ -89,7 +89,7 @@ export const UsersStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((dto) =>
-          http.post<{ data: User }>('users', dto).pipe(
+          http.post<{ data: IUser }>('users', dto).pipe(
             map(({ data }) => {
               router.navigate(['/users']);
               toast.showSuccess('Utilisateur ajouté avec succès');
@@ -108,7 +108,7 @@ export const UsersStore = signalStore(
       pipe(
         tap(() => patchState(store, { isUpdating: true })),
         switchMap((params) =>
-          http.patch<{ data: User }>(`users/${params.id}`, params.dto).pipe(
+          http.patch<{ data: IUser }>(`users/${params.id}`, params.dto).pipe(
             map(({ data }) => {
               router.navigate(['/users']);
               toast.showSuccess('Utilisateur mis à jour avec succès');

@@ -48,6 +48,9 @@
   @if (activeTab() === 'participations' && project) {
     <app-project-participations [projectId]="project.id" />
   }
+  @if (activeTab() === 'resources' && project) {
+    <app-project-resources [projectId]="project.id" [phases]="project.phases" />
+  }
   @if (activeTab() === 'notifications' && project) {
     <app-project-notifications [project]="project" />
   }

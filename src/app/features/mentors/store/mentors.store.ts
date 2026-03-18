@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, map, of, pipe, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { buildQueryParams } from '@shared/helpers';
-import { MentorProfile } from '@shared/models';
+import { IMentorProfile } from '@shared/models';
 import { FilterMentorsProfileDto } from '../dto/mentors/filter-mentors-profiles.dto';
 import { ToastrService } from '@shared/services/toast/toastr.service';
 import { Router } from '@angular/router';
@@ -16,8 +16,8 @@ interface IMentorsStore {
   isSearchingUsers: boolean;
   userSearchTerm: string;
   searchedUsers: { email: string; name: string }[];
-  mentors: [MentorProfile[], number];
-  mentor: MentorProfile | null;
+  mentors: [IMentorProfile[], number];
+  mentor: IMentorProfile | null;
 }
 
 export const MentorsStore = signalStore(
@@ -46,7 +46,7 @@ export const MentorsStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
-          return http.get<{ data: [MentorProfile[], number] }>('mentors/paginated', { params }).pipe(
+          return http.get<{ data: [IMentorProfile[], number] }>('mentors/paginated', { params }).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, mentors: data });
             }),
@@ -62,7 +62,7 @@ export const MentorsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          http.get<{ data: MentorProfile }>(`mentors/${id}`).pipe(
+          http.get<{ data: IMentorProfile }>(`mentors/${id}`).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, mentor: data });
             }),
@@ -103,7 +103,7 @@ export const MentorsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          http.patch<{ data: MentorProfile }>(`mentors/${id}/approve`, {}).pipe(
+          http.patch<{ data: IMentorProfile }>(`mentors/${id}/approve`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.mentors();
               const updated = list.map((m) => (m.id === data.id ? data : m));
@@ -123,7 +123,7 @@ export const MentorsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          http.patch<{ data: MentorProfile }>(`mentors/${id}/reject`, {}).pipe(
+          http.patch<{ data: IMentorProfile }>(`mentors/${id}/reject`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.mentors();
               const updated = list.map((m) => (m.id === data.id ? data : m));
@@ -143,7 +143,7 @@ export const MentorsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isSaving: true })),
         switchMap((dto) =>
-          http.post<{ data: MentorProfile }>('mentors', dto).pipe(
+          http.post<{ data: IMentorProfile }>('mentors', dto).pipe(
             map(({ data }) => {
               toast.showSuccess('Mentor créé avec succès');
               patchState(store, { isSaving: false, mentor: data });
@@ -162,7 +162,7 @@ export const MentorsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isSaving: true })),
         switchMap(({ id, dto }) =>
-          http.patch<{ data: MentorProfile }>(`mentors/${id}`, dto).pipe(
+          http.patch<{ data: IMentorProfile }>(`mentors/${id}`, dto).pipe(
             map(({ data }) => {
               const [list, count] = store.mentors();
               const updated = list.map((mentor) => (mentor.id === data.id ? data : mentor));

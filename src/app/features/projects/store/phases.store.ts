@@ -38,7 +38,9 @@ export const PhasesStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) => {
           return _http.get<{ data: IPhase[] }>(`phases/project/${id}`).pipe(
-            tap(({ data }) => patchState(store, { isLoading: false, phases: data })),
+            map(({ data }) => {
+              patchState(store, { isLoading: false, phases: data });
+            }),
             catchError(() => {
               patchState(store, { isLoading: false, phases: [] });
               return of(null);

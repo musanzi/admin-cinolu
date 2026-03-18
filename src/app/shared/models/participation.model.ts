@@ -1,9 +1,9 @@
 import { IBase } from './base.model';
 import { IEvent } from './event.model';
 import { IPhase } from './phase.model';
-import { IProject } from './project.model';
-import { IUser } from './user.model';
-import { IVenture } from './venture.model';
+import { IProject as IProject } from './project.model';
+import { IUser as IUser } from './user.model';
+import { IVenture as IVenture } from './venture.model';
 
 export interface IProjectParticipationUpvote extends IBase {
   user: IUser;

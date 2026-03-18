@@ -5,15 +5,20 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { GENDERS } from '@shared/data';
 import { markAllAsTouched, parseDate } from '@shared/helpers';
 import { IExperience, IExpertise } from '@shared/models';
-import { SelectOption, UiButton, UiCheckbox, UiDatepicker, UiInput, UiMultiSelect, UiSelect, UiTextarea } from '@shared/ui';
+import {
+  SelectOption,
+  UiButton,
+  UiCheckbox,
+  UiDatepicker,
+  UiInput,
+  UiMultiSelect,
+  UiSelect,
+  UiTextarea
+} from '@shared/ui';
 import { MentorsStore } from '../../store/mentors.store';
 import { ExpertisesStore } from '../../store/expertises.store';
 import { MentorType } from '../../enums/mentor.enum';
-import {
-  CreateExperienceDto,
-  CreateMentorDto,
-  MentorRequestDto
-} from '../../dto/mentors/create-mentor.dto';
+import { CreateExperienceDto, CreateMentorDto, MentorRequestDto } from '../../dto/mentors/create-mentor.dto';
 import { UpdateMentorSkeleton } from '../../ui/update-mentor-skeleton/update-mentor-skeleton';
 
 @Component({

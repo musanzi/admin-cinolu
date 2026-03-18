@@ -5,16 +5,16 @@ import { catchError, map, of, pipe, switchMap, tap, exhaustMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { FilterProgramsDto } from '../dto/programs/filter-programs.dto';
 import { buildQueryParams } from '@shared/helpers';
-import { IProgram } from '@shared/models';
+import { Program } from '@shared/models';
 import { Router } from '@angular/router';
 import { ToastrService } from '@shared/services/toast';
 import { ProgramDto } from '../dto/programs/program.dto';
 
 interface IProgramsStore {
   isLoading: boolean;
-  programs: [IProgram[], number];
-  program: IProgram | null;
-  allPrograms: IProgram[];
+  programs: [Program[], number];
+  program: Program | null;
+  allPrograms: Program[];
 }
 
 export const ProgramsStore = signalStore(
@@ -30,7 +30,7 @@ export const ProgramsStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
-          return _http.get<{ data: [IProgram[], number] }>('programs/paginated', { params }).pipe(
+          return _http.get<{ data: [Program[], number] }>('programs/paginated', { params }).pipe(
             tap(({ data }) => {
               patchState(store, { isLoading: false, programs: data });
             }),
@@ -46,7 +46,7 @@ export const ProgramsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         exhaustMap(() =>
-          _http.get<{ data: IProgram[] }>('programs').pipe(
+          _http.get<{ data: Program[] }>('programs').pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, allPrograms: data });
             }),
@@ -62,7 +62,7 @@ export const ProgramsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((slug) => {
-          return _http.get<{ data: IProgram }>(`programs/by-slug/${slug}`).pipe(
+          return _http.get<{ data: Program }>(`programs/by-slug/${slug}`).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, program: data });
             }),
@@ -97,7 +97,7 @@ export const ProgramsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap(({ programId, payload }) =>
-          _http.patch<{ data: IProgram }>(`programs/${programId}`, payload).pipe(
+          _http.patch<{ data: Program }>(`programs/${programId}`, payload).pipe(
             map(({ data }) => {
               _toast.showSuccess('Programme mis à jour');
               _router.navigate(['/programs']);
@@ -140,7 +140,7 @@ export const ProgramsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          _http.patch<{ data: IProgram }>(`programs/${id}/publish`, {}).pipe(
+          _http.patch<{ data: Program }>(`programs/${id}/publish`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.programs();
               const updated = list.map((p) => (p.id === data.id ? data : p));
@@ -158,7 +158,7 @@ export const ProgramsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          _http.patch<{ data: IProgram }>(`programs/${id}/highlight`, {}).pipe(
+          _http.patch<{ data: Program }>(`programs/${id}/highlight`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.programs();
               const updated = list.map((p) => (p.id === data.id ? data : p));

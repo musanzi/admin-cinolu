@@ -5,7 +5,7 @@ import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ToastrService } from '@shared/services/toast/toastr.service';
-import { Project } from '@shared/models';
+import { IProject } from '@shared/models';
 import { buildQueryParams } from '@shared/helpers';
 import { ProjectDto } from '../dto/projects/project.dto';
 import { FilterProjectsDto } from '../dto/projects/filter-projects.dto';
@@ -13,8 +13,8 @@ import { FilterProjectsDto } from '../dto/projects/filter-projects.dto';
 interface IProjectsStore {
   isLoading: boolean;
   isImportingCsv: boolean;
-  projects: [Project[], number];
-  project: Project | null;
+  projects: [IProject[], number];
+  project: IProject | null;
 }
 
 export const ProjectsStore = signalStore(
@@ -30,7 +30,7 @@ export const ProjectsStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
-          return http.get<{ data: [Project[], number] }>('projects', { params }).pipe(
+          return http.get<{ data: [IProject[], number] }>('projects', { params }).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, projects: data });
             }),
@@ -46,7 +46,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((slug) => {
-          return http.get<{ data: Project }>(`projects/by-slug/${slug}`).pipe(
+          return http.get<{ data: IProject }>(`projects/by-slug/${slug}`).pipe(
             tap(({ data }) => {
               patchState(store, { isLoading: false, project: data });
             }),
@@ -62,7 +62,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((project) => {
-          return http.post<{ data: Project }>('projects', project).pipe(
+          return http.post<{ data: IProject }>('projects', project).pipe(
             map(({ data }) => {
               toast.showSuccess('Le projet a été ajouté avec succès');
               router.navigate(['/projects']);
@@ -81,7 +81,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((project) => {
-          return http.patch<{ data: Project }>(`projects/${project.id}`, project).pipe(
+          return http.patch<{ data: IProject }>(`projects/${project.id}`, project).pipe(
             map(({ data }) => {
               toast.showSuccess('Le projet a été mis à jour avec succès');
               router.navigate(['/projects']);
@@ -102,7 +102,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) => {
-          return http.patch<{ data: Project }>(`projects/${id}/publish`, {}).pipe(
+          return http.patch<{ data: IProject }>(`projects/${id}/publish`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.projects();
               const updated = list.map((p) => (p.id === data.id ? data : p));
@@ -120,7 +120,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) => {
-          return http.patch<{ data: Project }>(`projects/${id}/highlight`, {}).pipe(
+          return http.patch<{ data: IProject }>(`projects/${id}/highlight`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.projects();
               const updated = list.map((p) => (p.id === data.id ? data : p));
@@ -140,7 +140,7 @@ export const ProjectsStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) => {
-          return http.delete<{ data: Project }>(`projects/${id}`).pipe(
+          return http.delete<{ data: IProject }>(`projects/${id}`).pipe(
             tap(() => {
               const [list, count] = store.projects();
               const filtered = list.filter((p) => p.id !== id);

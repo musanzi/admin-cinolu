@@ -6,7 +6,7 @@ import { ProgramCategoriesStore } from '../../store/program-categories.store';
 import { SquarePen, Trash2, Funnel, Tag, Star, Eye } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiTabs, FileUpload, UiInput } from '@shared/ui';
-import { IProgram } from '@shared/models';
+import { Program } from '@shared/models';
 import { ListSubprograms } from '../../components/subprograms/subprograms';
 import { UiButton, UiSelect, UiTextarea } from '@shared/ui';
 
@@ -61,7 +61,7 @@ export class UpdateProgram implements OnInit {
     this.categoriesStore.loadUnpaginated();
   }
 
-  #patchForm(program: IProgram | null): void {
+  #patchForm(program: Program | null): void {
     if (!program) return;
     this.updateForm.patchValue({ ...program, category: program.category?.id });
   }

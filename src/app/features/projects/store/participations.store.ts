@@ -2,7 +2,7 @@ import { computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { patchState, signalStore, withComputed, withMethods, withProps, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { catchError, of, pipe, switchMap, tap } from 'rxjs';
+import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
 import { buildQueryParams } from '@shared/helpers';
 import { IProjectParticipation } from '@shared/models';
 import { ToastrService } from '@shared/services/toast/toastr.service';
@@ -34,7 +34,9 @@ export const ParticipationsStore = signalStore(
           return _http
             .get<{ data: [IProjectParticipation[], number] }>(`projects/${projectId}/participations`, { params })
             .pipe(
-              tap(({ data }) => patchState(store, { isLoading: false, participations: data })),
+              map(({ data }) => {
+                patchState(store, { isLoading: false, participations: data });
+              }),
               catchError(() => {
                 patchState(store, { isLoading: false, participations: [[], 0] });
                 return of(null);

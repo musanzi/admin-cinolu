@@ -7,7 +7,7 @@ import { Eye, Funnel, LucideAngularModule, Pencil, Plus, Search, Trash } from 'l
 import { ApiImgPipe } from '@shared/pipes/api-img.pipe';
 import { ArticlesStore } from '../../store/articles.store';
 import { UiAvatar, UiButton, UiConfirmDialog, UiPagination, UiTabs, UiBadge } from '@shared/ui';
-import { Article } from '@shared/models';
+import { IArticle } from '@shared/models';
 import { ConfirmationService } from '@shared/services/confirmation';
 import { UiTableSkeleton } from '@shared/ui/table-skeleton/table-skeleton';
 import { bindSearchControlToQuery, toPageQueryValue } from '@shared/helpers';
@@ -99,7 +99,7 @@ export class ListArticles {
     });
   }
 
-  isPublished(article: Article): boolean {
+  isPublished(article: IArticle): boolean {
     return !!article.published_at && new Date(article.published_at) <= new Date();
   }
 }

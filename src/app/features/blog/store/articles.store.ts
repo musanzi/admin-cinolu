@@ -6,15 +6,15 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FilterArticlesTagsDto } from '../dto/filter-tags.dto';
 import { buildQueryParams } from '@shared/helpers';
-import { Article, Image } from '@shared/models';
+import { IArticle, IImage } from '@shared/models';
 import { ToastrService } from '@shared/services/toast/toastr.service';
 import { ArticleDto } from '../dto/article.dto';
 
 interface IArticlesStore {
   isLoading: boolean;
-  articles: [Article[], number];
-  article: Article | null;
-  gallery: Image[];
+  articles: [IArticle[], number];
+  article: IArticle | null;
+  gallery: IImage[];
   isLoadingTags: boolean;
 }
 
@@ -37,7 +37,7 @@ export const ArticlesStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((queryParams) => {
           const params = buildQueryParams(queryParams);
-          return http.get<{ data: [Article[], number] }>('articles', { params }).pipe(
+          return http.get<{ data: [IArticle[], number] }>('articles', { params }).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, articles: data });
             }),
@@ -53,7 +53,7 @@ export const ArticlesStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((slug) =>
-          http.get<{ data: Article }>(`articles/by-slug/${slug}`).pipe(
+          http.get<{ data: IArticle }>(`articles/by-slug/${slug}`).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, article: data });
             }),
@@ -69,7 +69,7 @@ export const ArticlesStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((payload) =>
-          http.post<{ data: Article }>('articles', payload).pipe(
+          http.post<{ data: IArticle }>('articles', payload).pipe(
             map(({ data }) => {
               toast.showSuccess("L'article a été ajouté avec succès");
               router.navigate(['/blog/articles']);
@@ -88,7 +88,7 @@ export const ArticlesStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((payload) =>
-          http.patch<{ data: Article }>(`articles/${payload.id}`, payload).pipe(
+          http.patch<{ data: IArticle }>(`articles/${payload.id}`, payload).pipe(
             map(({ data }) => {
               toast.showSuccess("L'article a été mis à jour avec succès");
               router.navigate(['/blog/articles']);
@@ -129,7 +129,7 @@ export const ArticlesStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((id) =>
-          http.patch<{ data: Article }>(`articles/${id}/highlight`, {}).pipe(
+          http.patch<{ data: IArticle }>(`articles/${id}/highlight`, {}).pipe(
             map(({ data }) => {
               const [list, count] = store.articles();
               const updated = list.map((a) => (a.id === data.id ? data : a));
@@ -151,7 +151,7 @@ export const ArticlesStore = signalStore(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
         switchMap((slug) =>
-          http.get<{ data: Image[] }>(`articles/by-slug/${slug}/gallery`).pipe(
+          http.get<{ data: IImage[] }>(`articles/by-slug/${slug}/gallery`).pipe(
             map(({ data }) => {
               patchState(store, { isLoading: false, gallery: data });
             }),

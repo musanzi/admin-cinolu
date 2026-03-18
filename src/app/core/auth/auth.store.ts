@@ -5,10 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
 import { ToastrService } from '../../shared/services/toast/toastr.service';
 import { Router } from '@angular/router';
-import { User } from '@shared/models';
+import { IUser } from '@shared/models';
 
 interface IAuthStore {
-  user: User | null;
+  user: IUser | null;
   isCheckingAuth: boolean;
 }
 
@@ -31,7 +31,7 @@ export const AuthStore = signalStore(
       pipe(
         tap(() => patchState(store, { isCheckingAuth: true })),
         exhaustMap(() =>
-          http.get<{ data: User }>('auth/me').pipe(
+          http.get<{ data: IUser }>('auth/me').pipe(
             tap(({ data }) => {
               patchState(store, { user: data, isCheckingAuth: false });
             }),
@@ -60,7 +60,7 @@ export const AuthStore = signalStore(
         )
       )
     ),
-    setUser: (user: User | null) => {
+    setUser: (user: IUser | null) => {
       patchState(store, { user });
     },
     setCheckingAuth: (isCheckingAuth: boolean) => {

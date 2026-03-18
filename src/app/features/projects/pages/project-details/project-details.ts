@@ -1,6 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SquarePen, Images, ChartColumn, Star, Eye, Layers, Users, Bell, LucideAngularModule } from 'lucide-angular';
+import {
+  SquarePen,
+  Images,
+  ChartColumn,
+  Star,
+  Eye,
+  Layers,
+  Users,
+  Bell,
+  FolderKanban,
+  LucideAngularModule
+} from 'lucide-angular';
 import { UiTabs, UiButton } from '@shared/ui';
 import { GalleryStore } from '../../store/project-gallery.store';
 import { ProjectsStore } from '../../store/projects.store';
@@ -13,6 +24,7 @@ import {
   ProjectGallery,
   ProjectNotifications,
   ProjectParticipations,
+  ProjectResources,
   ProjectUpdate,
   Phases
 } from '@features/projects/components';
@@ -30,6 +42,7 @@ import {
     Phases,
     ProjectParticipations,
     ProjectNotifications,
+    ProjectResources,
     ProjectDetailsSkeleton,
     LucideAngularModule,
     UiButton
@@ -48,6 +61,7 @@ export class ProjectDetails implements OnInit {
     { label: "Fiche d'activité", name: 'details', icon: ChartColumn },
     { label: 'Phases', name: 'phases', icon: Layers },
     { label: 'Participations', name: 'participations', icon: Users },
+    { label: 'Ressources', name: 'resources', icon: FolderKanban },
     { label: 'Notifications', name: 'notifications', icon: Bell },
     { label: 'Mettre à jour', name: 'edit', icon: SquarePen },
     { label: 'Galerie', name: 'gallery', icon: Images }

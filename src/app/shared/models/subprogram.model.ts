@@ -1,4 +1,4 @@
-import { IProgram } from './program.model';
+import { Program } from './program.model';
 import { IProject } from './project.model';
 import { IEvent } from './event.model';
 import { IBase } from './base.model';
@@ -10,7 +10,7 @@ export interface ISubprogram extends IBase {
   logo: string;
   is_published: boolean;
   is_highlighted: boolean;
-  program: IProgram;
+  program: Program;
   projects: IProject[];
   events: IEvent[];
 }
