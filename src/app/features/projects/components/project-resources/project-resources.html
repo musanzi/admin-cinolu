@@ -30,13 +30,15 @@
   @if (showForm()) {
     <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <form [formGroup]="resourceForm" (ngSubmit)="onSubmit()" class="space-y-5">
-        <div class="grid gap-5 lg:grid-cols-2">
-          <app-ui-input
-            [id]="'resource-title'"
-            [required]="true"
-            label="Titre"
-            formControlName="title"
-            placeholder="Ex: Guide de candidature" />
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div class="col-span-2">
+            <app-ui-input
+              [id]="'resource-title'"
+              [required]="true"
+              label="Titre"
+              formControlName="title"
+              placeholder="Ex: Guide de candidature" />
+          </div>
           <app-ui-select
             [id]="'resource-category'"
             [required]="true"
@@ -62,18 +64,19 @@
               formControlName="scope"
               placeholder="Choisir une portée" />
           }
+          @if (resourceForm.value.scope === 'phase') {
+            <div class="max-w-lg">
+              <app-ui-select
+                [id]="'resource-phase'"
+                [required]="true"
+                label="Phase"
+                [options]="phaseOptions()"
+                formControlName="phase_id"
+                placeholder="Choisir une phase" />
+            </div>
+          }
         </div>
-        @if (!editingResourceId() && resourceForm.value.scope === 'phase') {
-          <div class="max-w-lg">
-            <app-ui-select
-              [id]="'resource-phase'"
-              [required]="true"
-              label="Phase"
-              [options]="phaseOptions()"
-              formControlName="phase_id"
-              placeholder="Choisir une phase" />
-          </div>
-        }
+
         @if (!editingResourceId()) {
           <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -104,7 +107,6 @@
             </div>
           </div>
         }
-
         <div class="flex justify-end gap-2 border-t border-gray-100 pt-4">
           <app-ui-button type="button" size="small" variant="secondary" [outlined]="true" (clicked)="onCancelForm()">
             Annuler
@@ -135,14 +137,6 @@
                 </span>
                 <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
                   {{ scopeLabel(resource) }}
-                </span>
-                <span
-                  class="rounded-full px-3 py-1 text-xs font-medium"
-                  [class.bg-emerald-50]="resource.is_published"
-                  [class.text-emerald-700]="resource.is_published"
-                  [class.bg-amber-50]="!resource.is_published"
-                  [class.text-amber-700]="!resource.is_published">
-                  {{ resource.is_published ? 'Publié' : 'Brouillon' }}
                 </span>
               </div>
               <div class="flex items-start gap-3">
@@ -181,15 +175,6 @@
               <app-ui-button
                 type="button"
                 size="small"
-                [variant]="resource.is_published ? 'success' : 'primary'"
-                [outlined]="!resource.is_published"
-                (clicked)="onTogglePublish(resource)">
-                <i-lucide [name]="icons.Eye" class="size-4" />
-                {{ resource.is_published ? 'Dépublier' : 'Publier' }}
-              </app-ui-button>
-              <app-ui-button
-                type="button"
-                size="small"
                 variant="primary"
                 [outlined]="true"
                 (clicked)="onEdit(resource)">
@@ -213,7 +198,6 @@
         (pageChange)="onPageChange($event)" />
     </div>
   }
-
   @if (!isLoading && resources.length === 0 && !showForm()) {
     <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-16 text-center">
       <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm">
