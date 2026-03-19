@@ -111,11 +111,9 @@ export class ProjectResources {
     this.editingResourceId.set(resource.id);
     this.selectedFile.set(null);
     this.resourceForm.reset({
-      title: resource.title,
-      description: resource.description,
-      category: resource.category,
+      ...resource,
       scope: resource.phase ? 'phase' : 'project',
-      phase_id: resource.phase?.id ?? ''
+      phase_id: resource.phase?.id
     });
   }
 
