@@ -1,4 +1,4 @@
-import { Component, input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -8,6 +8,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => UiTextarea), multi: true }]
 })
 export class UiTextarea implements ControlValueAccessor {
+  readonly #cdr = inject(ChangeDetectorRef);
   label = input<string>('');
   placeholder = input<string>('');
   disabled = input<boolean>(false);
@@ -16,12 +17,15 @@ export class UiTextarea implements ControlValueAccessor {
   invalid = input<boolean>(false);
   required = input<boolean>(false);
   value = '';
+  isControlDisabled = signal(false);
+  isDisabled = computed(() => this.disabled() || this.isControlDisabled());
 
-  onChange!: (value: string) => void;
-  onTouched!: () => void;
+  onChange: (value: string) => void = () => undefined;
+  onTouched: () => void = () => undefined;
 
   writeValue(value: string): void {
     this.value = value || '';
+    this.#cdr.markForCheck();
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -33,10 +37,12 @@ export class UiTextarea implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    void isDisabled;
+    this.isControlDisabled.set(isDisabled);
+    this.#cdr.markForCheck();
   }
 
   onInput(event: Event): void {
+    if (this.isDisabled()) return;
     const target = event.target as HTMLTextAreaElement;
     this.value = target.value;
     this.onChange(this.value);
@@ -45,7 +51,7 @@ export class UiTextarea implements ControlValueAccessor {
   textareaClasses() {
     const baseClasses = 'ui-textarea';
     const invalidClass = this.invalid() ? 'ui-textarea-invalid' : '';
-    const disabledClass = this.disabled() ? 'ui-textarea-disabled' : '';
+    const disabledClass = this.isDisabled() ? 'ui-textarea-disabled' : '';
     return [baseClasses, invalidClass, disabledClass].filter(Boolean).join(' ');
   }
 }
