@@ -132,12 +132,10 @@ export const ParticipationsStore = signalStore(
         switchMap(({ participationId, dto, onSuccess }) => {
           if ('reviewId' in dto && dto.reviewId) {
             const { reviewId, ...payload } = dto as UpdateParticipationReviewDto;
-
             return _http
-              .patch<{ data: IProjectParticipationReview }>(
-                `projects/participations/${participationId}/review/${reviewId}`,
-                payload
-              )
+              .patch<{
+                data: IProjectParticipationReview;
+              }>(`projects/participations/${participationId}/review/${reviewId}`, payload)
               .pipe(
                 tap(() => {
                   patchState(store, { isSaving: false });
@@ -157,26 +155,27 @@ export const ParticipationsStore = signalStore(
                 })
               );
           }
-
           const payload = dto as CreateParticipationReviewDto;
-          return _http.post<{ data: IProjectParticipationReview }>(`projects/participations/${participationId}/review`, payload).pipe(
-            tap(() => {
-              patchState(store, { isSaving: false });
-              _toast.showSuccess(
-                payload.notifyParticipant
-                  ? 'La revue a été enregistrée et le participant a été notifié'
-                  : 'La revue a été enregistrée'
-              );
-              onSuccess?.();
-            }),
-            catchError((error) => {
-              _toast.showError(
-                extractApiErrorMessage(error, "Une erreur s'est produite lors de l'enregistrement de la revue")
-              );
-              patchState(store, { isSaving: false });
-              return of(null);
-            })
-          );
+          return _http
+            .post<{ data: IProjectParticipationReview }>(`projects/participations/${participationId}/review`, payload)
+            .pipe(
+              tap(() => {
+                patchState(store, { isSaving: false });
+                _toast.showSuccess(
+                  payload.notifyParticipant
+                    ? 'La revue a été enregistrée et le participant a été notifié'
+                    : 'La revue a été enregistrée'
+                );
+                onSuccess?.();
+              }),
+              catchError((error) => {
+                _toast.showError(
+                  extractApiErrorMessage(error, "Une erreur s'est produite lors de l'enregistrement de la revue")
+                );
+                patchState(store, { isSaving: false });
+                return of(null);
+              })
+            );
         })
       )
     ),
