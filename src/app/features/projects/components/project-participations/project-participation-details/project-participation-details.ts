@@ -1,10 +1,20 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, OnDestroy, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnDestroy,
+  output,
+  signal
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ArrowLeft, CheckCheck, LucideAngularModule } from 'lucide-angular';
+import { ArrowLeft, CheckCheck, PencilLine, X, LucideAngularModule } from 'lucide-angular';
 import { ParticipationsStore } from '@features/projects/store/participations.store';
 import { ApiImgPipe } from '@shared/pipes';
-import { IPhase, IProjectParticipation } from '@shared/models';
+import { IPhase, IProjectParticipation, IProjectParticipationReview } from '@shared/models';
 import { SelectOption, UiAvatar, UiBadge, UiButton, UiCheckbox, UiInput, UiSelect, UiTextarea } from '@shared/ui';
 import { UiTableSkeleton } from '@shared/ui/table-skeleton/table-skeleton';
 
@@ -32,7 +42,8 @@ export class ProjectParticipationDetails implements OnDestroy {
   #fb = inject(FormBuilder);
   store = inject(ParticipationsStore);
   back = output<void>();
-  icons = { ArrowLeft, CheckCheck };
+  selectedReviewId = signal<string | null>(null);
+  icons = { ArrowLeft, CheckCheck, PencilLine, X };
   reviewForm = this.#fb.group({
     phaseId: ['', Validators.required],
     score: ['', [Validators.required, Validators.min(0), Validators.max(100)]],
@@ -43,6 +54,15 @@ export class ProjectParticipationDetails implements OnDestroy {
   isLoading = computed(() => this.store.isDetailLoading());
   isSaving = computed(() => this.store.isSaving());
   error = computed(() => this.store.participationError());
+  sortedReviews = computed<IProjectParticipationReview[]>(() => {
+    const reviews = this.participation()?.reviews ?? [];
+    return [...reviews].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  });
+  selectedReview = computed<IProjectParticipationReview | null>(() => {
+    const reviewId = this.selectedReviewId();
+    if (!reviewId) return null;
+    return this.sortedReviews().find((review) => review.id === reviewId) ?? null;
+  });
   latestPhase = computed(() => {
     const detail = this.participation();
     if (!detail?.phases.length) return null;
@@ -55,6 +75,9 @@ export class ProjectParticipationDetails implements OnDestroy {
       .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime())
       .map((phase) => ({ label: phase.name, value: phase.id }));
   });
+  reviewCount = computed(() => this.sortedReviews().length);
+  latestReview = computed(() => this.sortedReviews()[0] ?? null);
+  isEditingReview = computed(() => !!this.selectedReview());
 
   constructor() {
     effect(() => {
@@ -65,12 +88,20 @@ export class ProjectParticipationDetails implements OnDestroy {
       const participation = this.participation();
       if (!participation) return;
 
-      this.reviewForm.patchValue({
-        phaseId: this.latestPhase()?.id ?? '',
-        score: '',
-        message: participation.review_message ?? '',
-        notifyParticipant: false
-      });
+      const selectedReview = this.selectedReview();
+
+      if (selectedReview) {
+        this.reviewForm.controls.phaseId.disable({ emitEvent: false });
+        this.reviewForm.patchValue({
+          phaseId: selectedReview.phase.id,
+          score: String(selectedReview.score),
+          message: selectedReview.message ?? '',
+          notifyParticipant: false
+        });
+        return;
+      }
+
+      this.resetReviewForm(false);
     });
   }
 
@@ -78,13 +109,12 @@ export class ProjectParticipationDetails implements OnDestroy {
     this.store.clearParticipation();
   }
 
-  reviewedPhaseName(): string {
-    const phaseId = this.reviewForm.get('phaseId')?.value;
-    return this.reviewPhaseOptions().find((option) => option.value === phaseId)?.label ?? 'Aucune phase sélectionnée';
-  }
-
   trackPhase(phase: IPhase): string {
     return phase.id;
+  }
+
+  trackReview(review: IProjectParticipationReview): string {
+    return review.id;
   }
 
   participantLocation(): string {
@@ -92,10 +122,42 @@ export class ProjectParticipationDetails implements OnDestroy {
     return [detail?.user.city, detail?.user.country].filter(Boolean).join(', ') || 'Non renseignée';
   }
 
-  reviewerLabel(): string {
-    const reviewer = this.participation()?.reviewed_by;
-    if (!reviewer) return 'Aucune revue enregistrée';
-    return `${reviewer.name} • ${reviewer.email}`;
+  reviewPhaseName(review: IProjectParticipationReview): string {
+    return review.phase?.name || 'Phase non renseignée';
+  }
+
+  reviewAuthor(review: IProjectParticipationReview): string {
+    return `${review?.reviewer?.name} • ${review?.reviewer?.email}`;
+  }
+
+  reviewScoreVariant(score: number): 'success' | 'warning' | 'danger' {
+    if (score >= 75) return 'success';
+    if (score >= 50) return 'warning';
+    return 'danger';
+  }
+
+  upvotesLabel(): string {
+    const detail = this.participation();
+    const count = detail?.upvotesCount ?? detail?.upvotes?.length ?? 0;
+    return `${count} vote${count > 1 ? 's' : ''}`;
+  }
+
+  editReview(review: IProjectParticipationReview): void {
+    this.selectedReviewId.set(review.id);
+  }
+
+  resetReviewForm(resetSelection = true): void {
+    if (resetSelection) {
+      this.selectedReviewId.set(null);
+    }
+
+    this.reviewForm.controls.phaseId.enable({ emitEvent: false });
+    this.reviewForm.reset({
+      phaseId: this.latestPhase()?.id ?? '',
+      score: '',
+      message: '',
+      notifyParticipant: false
+    });
   }
 
   onSubmitReview(): void {
@@ -112,13 +174,23 @@ export class ProjectParticipationDetails implements OnDestroy {
 
     this.store.review({
       participationId,
-      dto: {
-        phaseId: value.phaseId!,
-        score: Number(value.score),
-        message: message || undefined,
-        notifyParticipant: !!value.notifyParticipant
-      },
-      onSuccess: () => this.store.loadOne(participationId)
+      dto: this.selectedReviewId()
+        ? {
+            reviewId: this.selectedReviewId()!,
+            score: Number(value.score),
+            message: message || undefined,
+            notifyParticipant: !!value.notifyParticipant
+          }
+        : {
+            phaseId: value.phaseId!,
+            score: Number(value.score),
+            message: message || undefined,
+            notifyParticipant: !!value.notifyParticipant
+          },
+      onSuccess: () => {
+        this.selectedReviewId.set(null);
+        this.store.loadOne(participationId);
+      }
     });
   }
 }

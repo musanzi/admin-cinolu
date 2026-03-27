@@ -4,20 +4,15 @@ import { patchState, signalStore, withComputed, withMethods, withProps, withStat
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, map, of, pipe, switchMap, tap } from 'rxjs';
 import { buildQueryParams, extractApiErrorMessage } from '@shared/helpers';
-import { IProjectParticipation } from '@shared/models';
+import { IProjectParticipation, IProjectParticipationReview } from '@shared/models';
 import { ToastrService } from '@shared/services/toast/toastr.service';
 import { FilterParticipationsDto } from '../dto/phases/filter-participations.dto';
 import { MoveParticipationsDto } from '../dto/phases/move-participations.dto';
-import { ReviewParticipationDto } from '../dto/participations/review-participation.dto';
-
-interface ParticipationReview {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  message?: string | null;
-  score: number;
-}
+import {
+  CreateParticipationReviewDto,
+  ReviewParticipationDto,
+  UpdateParticipationReviewDto
+} from '../dto/participations/review-participation.dto';
 
 interface ParticipationsStoreState {
   isLoading: boolean;
@@ -134,12 +129,41 @@ export const ParticipationsStore = signalStore(
     review: rxMethod<{ participationId: string; dto: ReviewParticipationDto; onSuccess?: () => void }>(
       pipe(
         tap(() => patchState(store, { isSaving: true })),
-        switchMap(({ participationId, dto, onSuccess }) =>
-          _http.patch<{ data: ParticipationReview }>(`projects/participations/${participationId}/review`, dto).pipe(
+        switchMap(({ participationId, dto, onSuccess }) => {
+          if ('reviewId' in dto && dto.reviewId) {
+            const { reviewId, ...payload } = dto as UpdateParticipationReviewDto;
+
+            return _http
+              .patch<{ data: IProjectParticipationReview }>(
+                `projects/participations/${participationId}/review/${reviewId}`,
+                payload
+              )
+              .pipe(
+                tap(() => {
+                  patchState(store, { isSaving: false });
+                  _toast.showSuccess(
+                    payload.notifyParticipant
+                      ? 'La revue a été mise à jour et le participant a été notifié'
+                      : 'La revue a été mise à jour'
+                  );
+                  onSuccess?.();
+                }),
+                catchError((error) => {
+                  _toast.showError(
+                    extractApiErrorMessage(error, "Une erreur s'est produite lors de la mise à jour de la revue")
+                  );
+                  patchState(store, { isSaving: false });
+                  return of(null);
+                })
+              );
+          }
+
+          const payload = dto as CreateParticipationReviewDto;
+          return _http.post<{ data: IProjectParticipationReview }>(`projects/participations/${participationId}/review`, payload).pipe(
             tap(() => {
               patchState(store, { isSaving: false });
               _toast.showSuccess(
-                dto.notifyParticipant
+                payload.notifyParticipant
                   ? 'La revue a été enregistrée et le participant a été notifié'
                   : 'La revue a été enregistrée'
               );
@@ -152,8 +176,8 @@ export const ParticipationsStore = signalStore(
               patchState(store, { isSaving: false });
               return of(null);
             })
-          )
-        )
+          );
+        })
       )
     ),
     clearParticipation(): void {
